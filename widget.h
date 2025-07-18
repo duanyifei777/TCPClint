@@ -29,6 +29,9 @@ private slots:
     void on_IOButton_clicked();  // IO面板按钮
     void sendCommandToServer(const QString &cmd);  // 处理IO面板发出的信号
 
+    void on_clearsendButton_clicked();
+    void on_clearrecButton_clicked();
+
 private:
     Ui::Widget *ui;
     QTcpSocket *tcpsocket;

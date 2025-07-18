@@ -3,6 +3,7 @@
 #include "io.h"
 
 #include<QMessageBox>
+#include<QDebug>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -15,6 +16,7 @@ Widget::Widget(QWidget *parent)
     tcpsocket = new QTcpSocket;  //创建socket对象
     // 连接信号与槽（谁发出信号，发出什么信号，谁连接信号，怎么处理）
     connect(tcpsocket, &QTcpSocket::readyRead, this, &Widget::readready_slot);
+
 }
 
 Widget::~Widget()
@@ -33,7 +35,7 @@ void Widget::on_connectButton_clicked()
         return;
     }
     tcpsocket->connectToHost(ip, port); //连接到服务器
-    if (tcpsocket->waitForConnected((10000))) //判断是否连接成功，返回ture则成功
+    if (tcpsocket->waitForConnected((50000))) //判断是否连接成功，返回ture则成功
     {
         QMessageBox::information(this, "提示", "连接服务器成功");
     }
@@ -69,14 +71,28 @@ void Widget::on_sendButton_clicked()
 void Widget::readready_slot()
 {
     QByteArray data = tcpsocket->readAll();
-    ui->receiveTextEdit->appendPlainText(QString::fromUtf8(data));
+    QString text = QString::fromUtf8(data);
+    ui->receiveTextEdit->appendPlainText(text);
+
+    if(text.startsWith("MB_IOOUT:"))
+    {
+        text.remove("MB_IOOUT:");
+        int val = text.toInt();
+        iowindow->updateOutputState(val);
+    }
+    else if(text.startsWith("MB_IOIN:"))
+    {
+        text.remove("MB_IOIN:");
+        int val = text.toInt();
+        iowindow->updateInputState(val);
+    }
 }
 
 void Widget::on_IOButton_clicked()
 {
     if(!iowindow)
     {
-        iowindow = new IO();
+        iowindow = new IO(this);
         iowindow->setWindowTitle("IO监控窗口");
 
         // 连接控制信号
@@ -91,6 +107,7 @@ void Widget::on_IOButton_clicked()
 
 void Widget::sendCommandToServer(const QString &cmd)
 {
+    // qDebug() << "发送命令：" << cmd;  //调试：查看命令是否发出
     if(tcpsocket && tcpsocket->isOpen())
     {
         tcpsocket->write(cmd.toUtf8());
@@ -100,3 +117,15 @@ void Widget::sendCommandToServer(const QString &cmd)
         QMessageBox::warning(this, "提示", "未连接服务器，无法发送IO指令");
     }
 }
+
+void Widget::on_clearsendButton_clicked()
+{
+    ui->sendTextEdit->clear();
+}
+
+
+void Widget::on_clearrecButton_clicked()
+{
+    ui->receiveTextEdit->clear();
+}
+
