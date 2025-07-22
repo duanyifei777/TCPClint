@@ -11,14 +11,17 @@ CONFIG += c++17
 SOURCES += \
     io.cpp \
     main.cpp \
+    mywindow.cpp \
     widget.cpp
 
 HEADERS += \
     io.h \
+    mywindow.h \
     widget.h
 
 FORMS += \
     io.ui \
+    mywindow.ui \
     widget.ui
 
 # Default rules for deployment.

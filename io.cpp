@@ -31,6 +31,52 @@ IO::IO(QWidget *parent)
             pb->setCheckable(false);
         }
     }
+    // 初始化I/O 100-131
+    for (int i=0; i<32; i++)
+    {
+        QString ipbName = QString("I%1Button").arg(100+i);
+        QString opbName = QString("O%1Button").arg(100+i);
+        QPushButton *ipb = findChild<QPushButton*>(ipbName);
+        QPushButton *opb = findChild<QPushButton*>(opbName);
+        if(ipb)
+        {
+            ipb->setCheckable(false);
+            ipb->setStyleSheet("background-color:gray; border-radius:10px; border:1px solid black");
+        }
+        if(opb)
+        {
+            opb->setCheckable(false);
+            opb->setStyleSheet("background-color:gray; border-radius:10px; border:1px solid black");
+        }
+    }
+    // 初始化I/O 200-231
+    for (int i=0; i<32; i++)
+    {
+        QString ipbName = QString("I%1Button").arg(200+i);
+        QString opbName = QString("O%1Button").arg(200+i);
+        QPushButton *ipb = findChild<QPushButton*>(ipbName);
+        QPushButton *opb = findChild<QPushButton*>(opbName);
+        if(ipb)
+        {
+            ipb->setCheckable(false);
+            ipb->setStyleSheet("background-color:gray; border-radius:10px; border:1px solid black");
+        }
+        if(opb)
+        {
+            opb->setCheckable(false);
+            opb->setStyleSheet("background-color:gray; border-radius:10px; border:1px solid black");
+        }
+    }
+    // 初始化定时器
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [=]() mutable {
+        static bool mark;
+        QString cmd = mark ? "MB_IOIN" : "MB_IOOUT";
+        emit sendCommandToServer(cmd);
+        // qDebug() << "已发送查询命令：" << cmd.trimmed();
+        mark = !mark;
+    });
+
 }
 
 IO::~IO()
@@ -90,14 +136,33 @@ void IO::updateOutputState(const int &outstate)
     }
 }
 
-void IO::on_updateInputButton_clicked()
+void IO::setButtonEnabled(QString &name, bool enabled)
 {
-    emit sendCommandToServer("MB_IOIN");
+    QPushButton *pb = findChild<QPushButton*>(name);
+    if(!pb) return;
+
+    pb->setEnabled(enabled);
+    if(enabled)
+    {
+        pb->setStyleSheet("background-color:red;border-radius:10px; border:1px solid black");
+    }
+    else{
+        pb->setStyleSheet("background-color:gray;border-radius:10px; border:1px solid black");
+    }
 }
 
-
-void IO::on_updateOutputButton_clicked()
+void IO::startTimer()
 {
-    emit sendCommandToServer("MB_IOOUT");
+    if(!timer->isActive())
+    {
+        timer->start(3000);
+    }
 }
 
+void IO::stopTimer()
+{
+    if(timer->isActive())
+    {
+        timer->stop();
+    }
+}
