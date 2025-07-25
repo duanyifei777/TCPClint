@@ -3,11 +3,13 @@
 
 #include <QWidget>
 #include <QTcpSocket>
+#include <QTimer>
 #include "io.h"
+#include "manualcontrol.h"
 
-namespace Ui {
-class myWindow;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class myWindow; }
+QT_END_NAMESPACE
 
 class myWindow : public QWidget
 {
@@ -18,28 +20,30 @@ public:
     ~myWindow();
 
 private slots:
-    void on_connectButton_clicked();
-    void on_closeButton_clicked();
-    void readyRead_slot();
+    void on_connectButton_clicked();      // 连接按钮槽函数
+    void on_closeButton_clicked();        // 关闭按钮槽函数
 
-    void sendCommandToServer(const QString &cmd);  // 处理IO面板发出的信号
+    void readyRead_slot();                // socket收到数据时的槽
 
-    void changeSpeed();  // 改变机器人速率
-    void updateSpeed(QString val);  // 更新当前速率
+    void sendCommandToServer(const QString &cmd);  // 处理IO窗口发出的命令信号
 
-    void on_enabledButton_clicked();  // 使能按钮
-    void updateEnabled(int val);  // 更新使能状态
-    void updateAlarm(QStringList vallist);  // 更新报警信息
+    void changeSpeed();                   // 改变机器人速率（可能由按钮或UI控制）
+    void updateSpeed(QString val);        // 更新速率显示
+
+    void on_enabledButton_clicked();      // 使能按钮点击事件
+    void updateEnabled(int val);          // 更新使能状态显示
+    void updateAlarm(QStringList vallist); // 更新报警信息显示
     void updateCart(QStringList vallist);  // 更新机器人笛卡尔坐标
-    void updateJoint(QStringList vallist);  // 更新机器人关节坐标
+    void updateJoint(QStringList vallist); // 更新机器人关节坐标
 
-    void myTimerUpdate();
+    void myTimerUpdate();                 // 定时器周期触发函数
 
 private:
     Ui::myWindow *ui;
     QTcpSocket *tcpsocket;
     IO *iowindow = nullptr;
-    QTimer *mainTimer;
+    QTimer *mainTimer;                    // 定时器用于轮询或定时刷新
+    manualControl *manualwindow = nullptr;
 };
 
 #endif // MYWINDOW_H

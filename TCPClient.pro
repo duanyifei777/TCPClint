@@ -11,16 +11,19 @@ CONFIG += c++17
 SOURCES += \
     io.cpp \
     main.cpp \
+    manualcontrol.cpp \
     mywindow.cpp \
     widget.cpp
 
 HEADERS += \
     io.h \
+    manualcontrol.h \
     mywindow.h \
     widget.h
 
 FORMS += \
     io.ui \
+    manualcontrol.ui \
     mywindow.ui \
     widget.ui
 

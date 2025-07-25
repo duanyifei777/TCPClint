@@ -68,8 +68,8 @@ IO::IO(QWidget *parent)
         }
     }
     // 初始化定时器
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [=]() mutable {
+    iotimer = new QTimer(this);
+    connect(iotimer, &QTimer::timeout, this, [=]() mutable {
         static bool mark;
         QString cmd = mark ? "MB_IOIN" : "MB_IOOUT";
         emit sendCommandToServer(cmd);
@@ -153,16 +153,16 @@ void IO::setButtonEnabled(QString &name, bool enabled)
 
 void IO::startTimer()
 {
-    if(!timer->isActive())
+    if(!iotimer->isActive())
     {
-        timer->start(3000);
+        iotimer->start(3000);
     }
 }
 
 void IO::stopTimer()
 {
-    if(timer->isActive())
+    if(iotimer->isActive())
     {
-        timer->stop();
+        iotimer->stop();
     }
 }

@@ -19,7 +19,7 @@ public:
 
 private:
     Ui::IO *ui;
-    QTimer *timer;
+    QTimer *iotimer;
 
 private slots:
     void handleOutputButton();  //改变输出状态的按钮
