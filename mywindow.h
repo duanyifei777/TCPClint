@@ -37,6 +37,7 @@ private slots:
     void updateJoint(QStringList vallist); // 更新机器人关节坐标
 
     void myTimerUpdate();                 // 定时器周期触发函数
+    void changeTab(int index);
 
 private:
     Ui::myWindow *ui;
@@ -44,6 +45,9 @@ private:
     IO *iowindow = nullptr;
     QTimer *mainTimer;                    // 定时器用于轮询或定时刷新
     manualControl *manualwindow = nullptr;
+
+    int mainindex = -1;
+    int ioindex = -1;
 };
 
 #endif // MYWINDOW_H

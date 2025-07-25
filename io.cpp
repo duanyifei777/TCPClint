@@ -155,7 +155,7 @@ void IO::startTimer()
 {
     if(!iotimer->isActive())
     {
-        iotimer->start(3000);
+        iotimer->start(500);
     }
 }
 

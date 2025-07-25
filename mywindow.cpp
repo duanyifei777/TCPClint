@@ -11,17 +11,17 @@ myWindow::myWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("客户端");
-    this->resize(800,800);
+    this->resize(1100,800);
 
     tcpsocket = new QTcpSocket(this);
     iowindow = new IO(this);
     manualwindow = new manualControl(this);
 
+    mainindex = ui->tabWidget->indexOf(ui->Main);  // 获取main界面的索引
     // IO界面
-    int ioindex = ui->tabWidget->indexOf(ui->tabIO);
+    ioindex = ui->tabWidget->indexOf(ui->tabIO);  // 获取IO界面的索引
     ui->tabWidget->removeTab(ioindex);
     ui->tabWidget->addTab(iowindow, tr("IO监控"));
-
     connect(iowindow, &IO::sendCommandToServer, this, &myWindow::sendCommandToServer);
 
     // 定时器
@@ -36,11 +36,15 @@ myWindow::myWindow(QWidget *parent)
     ui->enabledButton->setStyleSheet("background-color:gray;");
 
     // 手动控制界面
-    int manualindex = ui->tabWidget->indexOf(ui->tabManual);
-    ui->tabWidget->removeTab(manualindex);
-    ui->tabWidget->addTab(manualwindow, tr("手动控制"));
-
+    QVBoxLayout *layout = new QVBoxLayout(ui->manualControlwidget);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(manualwindow);
     connect(manualwindow, &manualControl::sendCommandToServer, this, &myWindow::sendCommandToServer);
+
+    // 切换界面绑定到每个界面的定时器，这样就可以确保当前界面显示时定时器才开启
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &myWindow::changeTab);
+
+    connect(ui->portlineEdit, &QLineEdit::returnPressed, this, &myWindow::on_connectButton_clicked);
 }
 
 myWindow::~myWindow()
@@ -63,8 +67,6 @@ void myWindow::on_connectButton_clicked()
 
     if (tcpsocket->waitForConnected(5000)) {
         connect(tcpsocket, &QTcpSocket::readyRead, this, &myWindow::readyRead_slot);
-        iowindow->startTimer();
-        mainTimer->start(3000);
         QMessageBox::information(this, "提示", "连接服务器成功");
     } else {
         QMessageBox::warning(this, "提示", "连接服务器失败");
@@ -75,8 +77,6 @@ void myWindow::on_closeButton_clicked()
 {
     if (tcpsocket->isOpen()) {
         tcpsocket->disconnectFromHost();
-        iowindow->stopTimer();
-        mainTimer->stop();
         tcpsocket->close();
         QMessageBox::information(this, "提示", "已断开服务器连接");
     }
@@ -248,4 +248,23 @@ void myWindow::myTimerUpdate()
     }
 }
 
+void myWindow::changeTab(int index)
+{
+    mainTimer->stop();
+    iowindow->stopTimer();
 
+    if(index == mainindex)  // 主界面
+    {
+        if(tcpsocket && tcpsocket->isOpen())
+        {
+            mainTimer->start(500);
+        }
+    }
+    else if(index == ioindex)  // IO界面
+    {
+        if(tcpsocket && tcpsocket->isOpen())
+        {
+            iowindow->startTimer();
+        }
+    }
+}
