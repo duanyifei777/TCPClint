@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>675</width>
+    <width>743</width>
     <height>470</height>
    </rect>
   </property>
@@ -492,6 +492,11 @@
      <widget class="QWidget" name="tabIO">
       <attribute name="title">
        <string>IO监控</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tabPoint">
+      <attribute name="title">
+       <string>点位信息</string>
       </attribute>
      </widget>
     </widget>

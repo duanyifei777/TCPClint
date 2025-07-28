@@ -16,6 +16,7 @@ myWindow::myWindow(QWidget *parent)
     tcpsocket = new QTcpSocket(this);
     iowindow = new IO(this);
     manualwindow = new manualControl(this);
+    pointwindow = new pointInfo(this);
 
     mainindex = ui->tabWidget->indexOf(ui->Main);  // 获取main界面的索引
     // IO界面
@@ -45,6 +46,12 @@ myWindow::myWindow(QWidget *parent)
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &myWindow::changeTab);
 
     connect(ui->portlineEdit, &QLineEdit::returnPressed, this, &myWindow::on_connectButton_clicked);
+
+    //点位信息界面
+    pointindex = ui->tabWidget->indexOf(ui->tabPoint);
+    ui->tabWidget->removeTab(pointindex);
+    ui->tabWidget->addTab(pointwindow, tr("点位信息"));
+    connect(pointwindow, &pointInfo::sendCommandToServer, this, &myWindow::sendCommandToServer);
 }
 
 myWindow::~myWindow()
@@ -89,7 +96,7 @@ void myWindow::readyRead_slot()
 {
     QByteArray data = tcpsocket->readAll();
     QString text = QString::fromUtf8(data);
-    // qDebug() << "收到数据原始：" << text;
+    qDebug() << "收到数据原始：" << text;
 
     QRegularExpression re("MB_\\w+:[^\\s]+");
     QRegularExpressionMatchIterator it = re.globalMatch(text);
@@ -133,6 +140,15 @@ void myWindow::readyRead_slot()
             QStringList vallist = value.split(',');
             this->updateJoint(vallist);
         }
+        else if(key == "MB_GLOBALPOINT")
+        {
+            QStringList vallist = value.split(',');
+            pointwindow->handelPointInfo(vallist);
+        }
+        else if(key == "MB_TECH")
+        {
+            pointwindow->handelTechPoint(value);
+        }
     }
 }
 
@@ -153,11 +169,12 @@ void myWindow::changeSpeed()
     QString rateVal = ui->changeSpeedlineEdit->text().trimmed();
     bool ok;
     int rate = rateVal.toInt(&ok);
-    if (!ok || rate < 0 || rate > 100) {
+    if (!ok || rate < 0 || rate > 100)
+    {
         QMessageBox::warning(this, "提示", "请输入有效速率");
         return;
     }
-    QString cmd = QString("MB_RATE:%1").arg(rateVal);
+    QString cmd = QString("MB_RATE:%1").arg(rate);
     sendCommandToServer(cmd);
 }
 

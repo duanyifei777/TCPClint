@@ -6,6 +6,7 @@
 #include <QTimer>
 #include "io.h"
 #include "manualcontrol.h"
+#include "pointinfo.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class myWindow; }
@@ -45,9 +46,11 @@ private:
     IO *iowindow = nullptr;
     QTimer *mainTimer;                    // 定时器用于轮询或定时刷新
     manualControl *manualwindow = nullptr;
+    pointInfo *pointwindow = nullptr;
 
     int mainindex = -1;
     int ioindex = -1;
+    int pointindex = -1;
 };
 
 #endif // MYWINDOW_H

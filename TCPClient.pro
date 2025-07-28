@@ -13,18 +13,21 @@ SOURCES += \
     main.cpp \
     manualcontrol.cpp \
     mywindow.cpp \
+    pointinfo.cpp \
     widget.cpp
 
 HEADERS += \
     io.h \
     manualcontrol.h \
     mywindow.h \
+    pointinfo.h \
     widget.h
 
 FORMS += \
     io.ui \
     manualcontrol.ui \
     mywindow.ui \
+    pointinfo.ui \
     widget.ui
 
 # Default rules for deployment.
