@@ -145,7 +145,7 @@ void myWindow::readyRead_slot()
             QStringList vallist = value.split(',');
             pointwindow->handelPointInfo(vallist);
         }
-        else if(key == "MB_TECH")
+        else if(key == "MB_TEACH")
         {
             pointwindow->handelTechPoint(value);
         }
@@ -158,7 +158,7 @@ void myWindow::sendCommandToServer(const QString &cmd)
         QString tosend = cmd.trimmed();
         tcpsocket->write(tosend.toUtf8());
         tcpsocket->flush();
-        // qDebug() << "已发送查询命令：" << tosend;
+        qDebug() << "已发送查询命令：" << tosend;
     } else {
         QMessageBox::warning(this, "提示", "未连接到服务器");
     }
@@ -193,10 +193,12 @@ void myWindow::on_enabledButton_clicked()
             sendCommandToServer("MB_ENABLE:1");
             ui->enabledButton->setStyleSheet("background-color:green; font-size:28px; border:none; "
                                              "font-family:'Microsoft YaHei'");
+            ui->enabledButton->setText("开启");
         } else {
             sendCommandToServer("MB_ENABLE:0");
             ui->enabledButton->setStyleSheet("background-color:gray; font-size:28px; border:none; "
                                              "font-family:'Microsoft YaHei'");
+            ui->enabledButton->setText("关闭");
         }
     } else {
         QMessageBox::warning(this, "提示", "未连接，无法改变使能状态");
@@ -209,9 +211,11 @@ void myWindow::updateEnabled(int val)
     if (val == 0) {
         ui->enabledButton->setStyleSheet("background-color:gray; font-size:28px; border:none; "
                                          "font-family:'Microsoft YaHei'");
+        ui->enabledButton->setText("关闭");
     } else {
         ui->enabledButton->setStyleSheet("background-color:green; font-size:28px; border:none; "
                                          "font-family:'Microsoft YaHei'");
+        ui->enabledButton->setText("开启");
     }
 }
 
