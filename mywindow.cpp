@@ -11,12 +11,13 @@ myWindow::myWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("客户端");
-    this->resize(1100,800);
+    this->resize(1400,1000);
 
     tcpsocket = new QTcpSocket(this);
     iowindow = new IO(this);
     manualwindow = new manualControl(this);
     pointwindow = new pointInfo(this);
+    ramwindow = new RAMData(this);
 
     mainindex = ui->tabWidget->indexOf(ui->Main);  // 获取main界面的索引
     // IO界面
@@ -47,11 +48,17 @@ myWindow::myWindow(QWidget *parent)
 
     connect(ui->portlineEdit, &QLineEdit::returnPressed, this, &myWindow::on_connectButton_clicked);
 
-    //点位信息界面
+    // 点位信息界面
     pointindex = ui->tabWidget->indexOf(ui->tabPoint);
     ui->tabWidget->removeTab(pointindex);
     ui->tabWidget->addTab(pointwindow, tr("点位信息"));
     connect(pointwindow, &pointInfo::sendCommandToServer, this, &myWindow::sendCommandToServer);
+
+    // RAM数据界面
+    ramindex = ui->tabWidget->indexOf(ui->tabRAM);
+    ui->tabWidget->removeTab(ramindex);
+    ui->tabWidget->addTab(ramwindow, tr("RAM数据"));
+    connect(ramwindow, &RAMData::sendCommandToServer, this, &myWindow::sendCommandToServer);
 }
 
 myWindow::~myWindow()
@@ -149,6 +156,12 @@ void myWindow::readyRead_slot()
         {
             pointwindow->handelTechPoint(value);
         }
+        else if(key == "MB_SRAM")
+        {
+            ramwindow->handleSRAMData(value);
+        }
+        else if(key == "MB_DRAM")
+            ramwindow->handleDRAMData(value);
     }
 }
 

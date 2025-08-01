@@ -70,7 +70,7 @@ void pointInfo::on_getPointButton_clicked()
     }
 }
 
-void pointInfo::handelPointInfo(QStringList &vallist)  // 处理获取/写入共享点位信息的返回指令，判断是查询还是写入结果
+void pointInfo::handelPointInfo(const QStringList &vallist)  // 处理获取/写入共享点位信息的返回指令，判断是查询还是写入结果
 {
     if(vallist.size() == 1)
     {
@@ -87,7 +87,7 @@ void pointInfo::handelPointInfo(QStringList &vallist)  // 处理获取/写入共
     else
     {
         int poinNumber = basePointNumber + currentrow;
-        qDebug() << "basepointnumber=" << basePointNumber << " " << "currentrow=" << currentrow;
+        // qDebug() << "basepointnumber=" << basePointNumber << " " << "currentrow=" << currentrow;
         updateTableRow(poinNumber, vallist);
 
         currentrow++;  // 下一次写入表格的下一行
@@ -148,7 +148,7 @@ void pointInfo::on_recordCartButton_clicked()
     }
 }
 
-void pointInfo::handelTechPoint(QString &val)
+void pointInfo::handelTechPoint(const QString &val)
 {
     currentrow = 0;
     if(val == "0")  // 机器人坐标写入正常

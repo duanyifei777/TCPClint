@@ -14,21 +14,21 @@ SOURCES += \
     manualcontrol.cpp \
     mywindow.cpp \
     pointinfo.cpp \
-    widget.cpp
+    ramdata.cpp
 
 HEADERS += \
     io.h \
     manualcontrol.h \
     mywindow.h \
     pointinfo.h \
-    widget.h
+    ramdata.h
 
 FORMS += \
     io.ui \
     manualcontrol.ui \
     mywindow.ui \
     pointinfo.ui \
-    widget.ui
+    ramdata.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -25,8 +25,8 @@ private slots:
     void on_clearTableButton_clicked();  // 清除table数据
 
 public slots:
-    void handelPointInfo(QStringList &vallist);
-    void handelTechPoint(QString &val);
+    void handelPointInfo(const QStringList &vallist);
+    void handelTechPoint(const QString &val);
 
     void updateTableRow(int pointNumber, const QStringList &vallist);
 

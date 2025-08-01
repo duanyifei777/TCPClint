@@ -35,7 +35,7 @@
       </font>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="Main">
       <attribute name="title">
@@ -489,7 +489,7 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5,1,4">
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,5,1,1,4">
          <property name="spacing">
           <number>4</number>
          </property>
@@ -524,6 +524,19 @@
             </sizepolicy>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QLabel" name="label_2">
@@ -653,6 +666,11 @@
      <widget class="QWidget" name="tabPoint">
       <attribute name="title">
        <string>点位信息</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tabRAM">
+      <attribute name="title">
+       <string>RAM数据</string>
       </attribute>
      </widget>
     </widget>
