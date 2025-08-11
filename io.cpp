@@ -101,7 +101,7 @@ void IO::handleOutputButton()
     emit sendCommandToServer(cmd);  // 给主窗口发信号
 }
 
-void IO::updateInputState(const int &instate)
+void IO::updateInputState(int instate)
 {
     QString binarystate = QString::number(instate,2).rightJustified(16, '0');
     int num = binarystate.size();
@@ -117,7 +117,7 @@ void IO::updateInputState(const int &instate)
     }
 }
 
-void IO::updateOutputState(const int &outstate)
+void IO::updateOutputState(int outstate)
 {
     // qDebug() << outstate;
     QString binarystate = QString::number(outstate, 2).rightJustified(16, '0');

@@ -38,6 +38,9 @@ public:
     explicit manualControl(QWidget *parent = nullptr);
     ~manualControl();
 
+public slots:
+    void handleManualMode(int val);
+
 private slots:
     void manualCart();  // 处理整个笛卡尔运动的函数
     void startCartManual(CartDirection cdir);  // 按钮按下时的处理函数
@@ -132,12 +135,16 @@ private slots:
 
     void on_J3ppushButton_released();
 
+    void on_manualModeButton_clicked();
+
 private:
     Ui::manualControl *ui;
     QTimer *manualtimer;
 
     CartDirection currentCarttDirection = CartDirection::None;
     JointDirection currentJointDirection = JointDirection::None;
+
+    int manualmode = 3;  // 机器人手动模式 3:连续，0: 0.1，1: 1.0，2: 5.0
 
 signals:
     void sendCommandToServer(const QString &cmd);

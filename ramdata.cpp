@@ -74,14 +74,14 @@ void RAMData::on_getSRAMButton_clicked()
     }
 }
 
-void RAMData::handleSRAMData(const QString &value)  // 处理服务器返回的SRAM数据
+void RAMData::handleSRAMData(const QString &val)  // 处理服务器返回的SRAM数据
 {
     if(!isReadingSRAM) return;  // 如果读取标志位为假，就直接返回
     int currentindex = baseindex + bias;
     int row = currentindex / 8;
     int col = currentindex % 8;
 
-    QTableWidgetItem *item = new QTableWidgetItem(value);
+    QTableWidgetItem *item = new QTableWidgetItem(val);
     ui->SRAMTable->setItem(row, col, item);
 
     if(currentindex == baseindex)
@@ -166,14 +166,14 @@ void RAMData::on_getDRAMButton_clicked()
     }
 }
 
-void RAMData::handleDRAMData(const QString &value)  // 处理服务器返回的DRAM数据
+void RAMData::handleDRAMData(const QString &val)  // 处理服务器返回的DRAM数据
 {
     if(!isReadingDRAM) return;  // 不是只读状态就直接返回
     int currentindex = baseindex + bias;
     int row = currentindex / 8;
     int col = currentindex % 8;
 
-    QTableWidgetItem *item = new QTableWidgetItem(value);
+    QTableWidgetItem *item = new QTableWidgetItem(val);
     ui->DRAMTable->setItem(row, col, item);
 
     if(currentindex == baseindex)

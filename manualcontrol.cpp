@@ -1,6 +1,8 @@
 #include "manualcontrol.h"
 #include "ui_manualcontrol.h"
 
+#include <QMessageBox>
+
 manualControl::manualControl(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::manualControl)
@@ -10,11 +12,49 @@ manualControl::manualControl(QWidget *parent)
     // 创建定时器
     manualtimer = new QTimer(this);
     connect(manualtimer, &QTimer::timeout, this, &manualControl::changeManualMode);  // 连接定时器与笛卡尔运动
+
+    // 初始化手动模式按钮
+    ui->manualModeButton->setText("连续");
 }
 
 manualControl::~manualControl()
 {
     delete ui;
+}
+
+void manualControl::on_manualModeButton_clicked()
+{
+    int mode = (manualmode+1) % 4;  // 3->0->1->2->3循环
+
+    QString cmd = QString("MB_MANUALMODE:%1").arg(mode);
+    emit sendCommandToServer(cmd);
+}
+
+void manualControl::handleManualMode(int val)
+{
+    if(val == 0)  // 切换成功
+    {
+        manualmode = (manualmode + 1) % 4;
+
+        switch (manualmode) {
+        case 0:
+            ui->manualModeButton->setText("单步移动:0.1");
+            break;
+        case 1:
+            ui->manualModeButton->setText("单步移动:1");
+            break;
+        case 2:
+            ui->manualModeButton->setText("单步移动:5");
+            break;
+        case 3:
+            ui->manualModeButton->setText("连续");
+            break;
+        }
+    }
+    else  // 切换失败
+    {
+        QMessageBox::warning(this, "提示", "切换模式失败");
+    }
 }
 
 void manualControl::changeManualMode()

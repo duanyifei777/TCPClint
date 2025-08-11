@@ -11,7 +11,7 @@ myWindow::myWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("客户端");
-    this->resize(1400,1000);
+    this->resize(1300,1100);
 
     tcpsocket = new QTcpSocket(this);
     iowindow = new IO(this);
@@ -23,7 +23,7 @@ myWindow::myWindow(QWidget *parent)
     // IO界面
     ioindex = ui->tabWidget->indexOf(ui->tabIO);  // 获取IO界面的索引
     ui->tabWidget->removeTab(ioindex);
-    ui->tabWidget->addTab(iowindow, tr("IO监控"));
+    ui->tabWidget->insertTab(ioindex, iowindow, tr("IO监控"));
     connect(iowindow, &IO::sendCommandToServer, this, &myWindow::sendCommandToServer);
 
     // 定时器
@@ -46,19 +46,41 @@ myWindow::myWindow(QWidget *parent)
     // 切换界面绑定到每个界面的定时器，这样就可以确保当前界面显示时定时器才开启
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &myWindow::changeTab);
 
+    // 绑定端口号与回车键 用于连接
     connect(ui->portlineEdit, &QLineEdit::returnPressed, this, &myWindow::on_connectButton_clicked);
 
     // 点位信息界面
     pointindex = ui->tabWidget->indexOf(ui->tabPoint);
     ui->tabWidget->removeTab(pointindex);
-    ui->tabWidget->addTab(pointwindow, tr("点位信息"));
+    ui->tabWidget->insertTab(pointindex, pointwindow, tr("点位信息"));
     connect(pointwindow, &pointInfo::sendCommandToServer, this, &myWindow::sendCommandToServer);
 
     // RAM数据界面
     ramindex = ui->tabWidget->indexOf(ui->tabRAM);
     ui->tabWidget->removeTab(ramindex);
-    ui->tabWidget->addTab(ramwindow, tr("RAM数据"));
+    ui->tabWidget->insertTab(ramindex, ramwindow, tr("RAM数据"));
     connect(ramwindow, &RAMData::sendCommandToServer, this, &myWindow::sendCommandToServer);
+
+    // 初始化机器人运行状态按钮:开始/停止/暂停/复位
+    ui->startARButton->setIcon(QIcon("D:/Qt/icon/start.png"));
+    ui->startARButton->setIconSize(QSize(30,30));
+    ui->startARButton->setFixedSize(50,50);
+    ui->stopARButton->setIcon(QIcon("D:/Qt/icon/stop.png"));
+    ui->stopARButton->setIconSize(QSize(25,25));
+    ui->stopARButton->setFixedSize(50,50);
+    ui->pauseARButton->setIcon(QIcon("D:/Qt/icon/pause.png"));
+    ui->pauseARButton->setIconSize(QSize(25,25));
+    ui->pauseARButton->setFixedSize(50,50);
+    ui->restartARButton->setIcon(QIcon("D:/Qt/icon/restart.png"));
+    ui->restartARButton->setIconSize(QSize(25,25));
+    ui->restartARButton->setFixedSize(50,50);
+
+    // 初始化机器人状态指示灯
+    ui->ledLabel->setFixedSize(40,40);
+    ui->ledLabel->setStyleSheet(R"(QLabel{
+    background-color: qradialgradient(cx:0.3, cy:0.3, radius:1,fx:0.3, fy:0.3,stop:0 white,stop:1 gray);
+    border: 4px solid #898989;
+    border-radius: 20px;})");
 }
 
 myWindow::~myWindow()
@@ -82,6 +104,7 @@ void myWindow::on_connectButton_clicked()
     if (tcpsocket->waitForConnected(5000)) {
         connect(tcpsocket, &QTcpSocket::readyRead, this, &myWindow::readyRead_slot);
         QMessageBox::information(this, "提示", "连接服务器成功");
+        sendCommandToServer("MB_MRELEASE");
     } else {
         QMessageBox::warning(this, "提示", "连接服务器失败");
     }
@@ -90,6 +113,7 @@ void myWindow::on_connectButton_clicked()
 void myWindow::on_closeButton_clicked()
 {
     if (tcpsocket->isOpen()) {
+        sendCommandToServer("MB_MRELEASE");
         tcpsocket->disconnectFromHost();
         tcpsocket->close();
         QMessageBox::information(this, "提示", "已断开服务器连接");
@@ -102,6 +126,7 @@ void myWindow::on_closeButton_clicked()
 void myWindow::readyRead_slot()
 {
     QByteArray data = tcpsocket->readAll();
+    if(data.isEmpty()) return;
     QString text = QString::fromUtf8(data);
     qDebug() << "收到数据原始：" << text;
 
@@ -161,7 +186,84 @@ void myWindow::readyRead_slot()
             ramwindow->handleSRAMData(value);
         }
         else if(key == "MB_DRAM")
+        {
             ramwindow->handleDRAMData(value);
+        }
+        else if(key == "MB_ARWORK")
+        {
+            int val = value.toInt();
+            this->handleARWork(val);
+        }
+        else if(key == "MB_AR_STATE")
+        {
+            int val = value.toInt();
+            this->updateARState(val);
+        }
+        else if(key == "MB_MODE")
+        {
+            int val = value.toInt();
+            this->updateMode(val);
+        }
+        else if(key == "MB_MANUALMODE")
+        {
+            int val = value.toInt();
+            manualwindow->handleManualMode(val);
+        }
+        else if(key == "MB_MACCEPT")
+        {
+            int val = value.toInt();
+            pointwindow->handleMotionAccept(val);
+        }
+        else if(key == "MB_MRELEASE")
+        {
+            int val = value.toInt();
+            pointwindow->handleMotionRelease(val);
+        }
+        else if(key == "MB_TRACKMOTION")
+        {
+            int val = value.toInt();
+            pointwindow->handleTrackPoint(val);
+        }
+        else if(key == "MB_COORD")
+        {
+            int val = value.toInt();
+            this->handleCoord(val);
+        }
+        else if(key == "MB_MOVP")
+        {
+            int val = value.toInt();
+            pointwindow->handleMoveP(val);
+        }
+        else if(key == "MB_MARCHP")
+        {
+            int val = value.toInt();
+            pointwindow->handleMArchP(val);
+        }
+        else if(key == "MB_MOVJ")
+        {
+            int val = value.toInt();
+            pointwindow->handleMovJ(val);
+        }
+        else if(key == "MB_MOVL")
+        {
+            int val = value.toInt();
+            pointwindow->handleMovL(val);
+        }
+        else if(key == "MB_MARC")
+        {
+            int val = value.toInt();
+            pointwindow->handleMarc(val);
+        }
+        else if(key == "MB_WAITPOS")
+        {
+            int val = value.toInt();
+            pointwindow->handleWaitPos(val);
+        }
+        else if(key == "MB_WAITREALPOS")
+        {
+            int val = value.toInt();
+            pointwindow->handleWaitRealPos(val);
+        }
     }
 }
 
@@ -191,10 +293,10 @@ void myWindow::changeSpeed()
     sendCommandToServer(cmd);
 }
 
-void myWindow::updateSpeed(QString val)
+void myWindow::updateSpeed(const QString &val)
 {
     if (val != "0") {
-        ui->showSpeedlabel->setText(val);
+        ui->showSpeedlabel->setText(val+"%");
     }
 }
 
@@ -232,7 +334,7 @@ void myWindow::updateEnabled(int val)
     }
 }
 
-void myWindow::updateAlarm(QStringList vallist)
+void myWindow::updateAlarm(const QStringList &vallist)
 {
     if (vallist.size() == 2) {
         QString glScram = vallist[0];
@@ -240,13 +342,20 @@ void myWindow::updateAlarm(QStringList vallist)
 
         if (glScram == "0") {
             ui->warningtextBrowser->setText("✅ 正常");
-        } else {
+        }
+        else {
             ui->warningtextBrowser->setText("❌ 报警，编号：" + scramNo);
+            ui->ledLabel->setStyleSheet(R"(QLabel{
+            background-color: qradialgradient(cx:0.3, cy:0.3, radius:1,fx:0.3, fy:0.3,
+            stop:0 #ffcccc,stop:1 #cc0000);
+            border: 4px solid #898989;
+            border-radius: 20px;})");
+            ui->ledLabel->setToolTip("报警");
         }
     }
 }
 
-void myWindow::updateCart(QStringList vallist)
+void myWindow::updateCart(const QStringList &vallist)
 {
     if (vallist.size() >= 6) {
         ui->xlineEdit->setText(vallist[0]);
@@ -258,7 +367,7 @@ void myWindow::updateCart(QStringList vallist)
     }
 }
 
-void myWindow::updateJoint(QStringList vallist)
+void myWindow::updateJoint(const QStringList &vallist)
 {
     if (vallist.size() >= 6) {
         ui->J1lineEdit->setText(vallist[0]);
@@ -273,7 +382,8 @@ void myWindow::updateJoint(QStringList vallist)
 void myWindow::myTimerUpdate()
 {
     if (tcpsocket && tcpsocket->isOpen()) {
-        QStringList commands = {"MB_RATE", "MB_ENABLE", "MB_SCRAM", "MB_CART", "MB_JOINT"};
+        QStringList commands = {"MB_RATE", "MB_ENABLE", "MB_SCRAM", "MB_CART", "MB_JOINT",
+                                "MB_AR_STATE", "MB_MODE", "MB_COORD"};
         for (int i = 0; i < commands.size(); i++) {
             QTimer::singleShot(50 * i, this, [=]() {
                 sendCommandToServer(commands[i]);
@@ -286,6 +396,7 @@ void myWindow::changeTab(int index)
 {
     mainTimer->stop();
     iowindow->stopTimer();
+    // pointwindow->stopTimer();
 
     if(index == mainindex)  // 主界面
     {
@@ -301,4 +412,167 @@ void myWindow::changeTab(int index)
             iowindow->startTimer();
         }
     }
+    // else if(index == pointindex)  // 点位信息界面
+    // {
+    //     if(tcpsocket && tcpsocket->isOpen())
+    //     {
+    //         pointwindow->startTimer();
+    //     }
+    // }
+}
+
+void myWindow::handleARWork(int val)  // MB_ARWORK:flag 0：正常, 1：失败
+{
+    // qDebug() << val ;
+    if(val == 0)  // 设置AR运行状态成功
+    {
+        if(ARWorkStatus == "start")  // 成功启动
+        {
+            ui->startARButton->setEnabled(false);  // 暂时禁用start
+            ARPause = false;
+        }
+        else if(ARWorkStatus == "pause")
+        {
+            ui->startARButton->setEnabled(true);
+            ARPause = true;
+        }
+        else if(ARWorkStatus == "stop")  // 停止成功
+        {
+            ui->startARButton->setEnabled(true);  // 启用start
+            ARPause = false;
+        }
+    }
+    else if(val == 1)  // 设置AR运行状态失败
+    {
+        QMessageBox::warning(this, "提示", "失败");
+    }
+}
+
+void myWindow::on_startARButton_clicked()
+{
+    QString text;
+    if(ARPause)  // 表示处于暂停状态
+    {
+        text = "继续运行AR程序";
+    }
+    else{
+        text = "是否启动AR程序";
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "确认操作", text,
+                                  QMessageBox::Yes | QMessageBox::No);
+    if(reply == QMessageBox::Yes)
+    {
+        ARWorkStatus = "start";
+        QString cmd = QString("MB_ARWORK:1");
+        sendCommandToServer(cmd);
+    }
+}
+
+void myWindow::on_pauseARButton_clicked()
+{
+    ARWorkStatus = "pause";
+    QString cmd = QString("MB_ARWORK:2");
+    sendCommandToServer(cmd);
+}
+
+void myWindow::on_stopARButton_clicked()
+{
+    ARWorkStatus = "stop";
+    QString cmd = QString("MB_ARWORK:3");
+    sendCommandToServer(cmd);
+}
+
+void myWindow::on_restartARButton_clicked()
+{
+    QString cmd = QString("MB_ARWORK:4");
+    sendCommandToServer(cmd);
+}
+
+void myWindow::updateARState(int val)
+{
+    if(val == 0)  // 停止状态(空闲)
+    {
+        ui->ledLabel->setStyleSheet(R"(QLabel{
+        background-color: qradialgradient(cx:0.3, cy:0.3, radius:1,fx:0.3, fy:0.3,stop:0 white,stop:1 gray);
+        border: 4px solid #898989;
+        border-radius: 20px;})");
+        ui->ledLabel->setToolTip("空闲");
+    }
+    else if(val == 1)  // 暂停状态
+    {
+        ui->ledLabel->setStyleSheet(R"(QLabel{
+        background-color: qradialgradient(cx:0.3, cy:0.3, radius:1, fx:0.3, fy:0.3,
+        stop:0 #ffffcc, stop:1 #ffcc00);
+        border: 4px solid #898989;
+        border-radius: 20px;})");
+        ui->ledLabel->setToolTip("暂停");
+    }
+    else if(val == 2)  // 运行状态
+    {
+        ui->ledLabel->setStyleSheet(R"(QLabel{
+        background-color: qradialgradient(cx:0.3, cy:0.3, radius:1, fx:0.3, fy:0.3,
+        stop:0 #ccffcc, stop:1 #00cc00);
+        border: 4px solid #898989;
+        border-radius: 20px;})");
+        ui->ledLabel->setToolTip("运行中");
+    }
+    else  // 手动控制状态
+    {
+        ui->ledLabel->setStyleSheet(R"(QLabel{
+        background-color: qradialgradient(cx:0.3, cy:0.3, radius:1, fx:0.3, fy:0.3,
+        stop:0 #cce6ff, stop:1 #3399ff);
+        border: 4px solid #898989;
+        border-radius: 20px;})");
+        ui->ledLabel->setToolTip("手动控制中");
+    }
+}
+
+void myWindow::updateMode(int val)
+{
+    ui->showModelabel->setText(val == 0 ? "手动" : "自动");
+}
+
+void myWindow::handleCoord(int val)
+{
+    if(ChangeCoord)
+    {
+        ChangeCoord = false;
+        if(val == 0) return;
+        else if(val == 1)
+        {
+            QMessageBox::warning(this, "提示", "运动中设置失败");
+        }
+        else if(val == 2)
+        {
+            QMessageBox::warning(this, "提示", "同步位置失败");
+        }
+        else if(val == -1)
+        {
+            QMessageBox::warning(this, "提示", "目标坐标系未创建");
+        }
+    }
+    else{
+        QString binarystate = QString::number(val, 2).rightJustified(16, '0');  // 转换为16位2进制字符串
+        QString highstate = binarystate.left(8);  // 高8位
+        QString lowstate = binarystate.right(8);  // 低8位
+
+        int user = highstate.toInt(nullptr, 2);  // 用户坐标系编号
+        int tool = lowstate.toInt(nullptr, 2);  // 工具坐标系编号
+
+        ui->showUCoordlabel->setText(QString::number(user));
+        ui->showTCoordlabel->setText(QString::number(tool));
+    }
+}
+
+void myWindow::on_changeCoordButton_clicked()
+{
+    int user = ui->changeUCoordBox->currentText().toInt();
+    int tool = ui->changeTCoordBox->currentText().toInt();
+
+    int combine = (user<<8) | tool;  // 将user左移八位作为高八位，和tool做或运算得到16位编码的十进制数
+
+    QString cmd = QString("MB_COORD:%1").arg(combine);
+    sendCommandToServer(cmd);
+    ChangeCoord = true;  // 表示是修改坐标系
 }

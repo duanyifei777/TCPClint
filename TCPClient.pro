@@ -13,6 +13,7 @@ SOURCES += \
     main.cpp \
     manualcontrol.cpp \
     mywindow.cpp \
+    paraminputdialog.cpp \
     pointinfo.cpp \
     ramdata.cpp
 
@@ -20,6 +21,7 @@ HEADERS += \
     io.h \
     manualcontrol.h \
     mywindow.h \
+    paraminputdialog.h \
     pointinfo.h \
     ramdata.h
 

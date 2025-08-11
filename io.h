@@ -27,8 +27,8 @@ private slots:
     void setButtonEnabled(QString &name, bool enabled);  // 设置按钮状态（是否可按下）
 
 public slots:
-    void updateInputState(const int &instate);  // 处理输入状态更新
-    void updateOutputState(const int &outstate);  //处理输出状态更新
+    void updateInputState(int instate);  // 处理输入状态更新
+    void updateOutputState(int outstate);  //处理输出状态更新
 
     void startTimer();  // 打开/关闭定时器
     void stopTimer();

@@ -37,8 +37,8 @@ private slots:
     void on_writeDRAMButton_clicked();
 
 public slots:
-    void handleSRAMData(const QString &value);
-    void handleDRAMData(const QString &value);
+    void handleSRAMData(const QString &val);
+    void handleDRAMData(const QString &val);
 };
 
 #endif // RAMDATA_H
