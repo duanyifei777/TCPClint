@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QFormLayout>
-#include <QMap>
+#include <Qmap>
 #include <QLabel>
 #include <QDialogButtonBox>
 

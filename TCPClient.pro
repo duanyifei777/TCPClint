@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    globalcoordinate.cpp \
     io.cpp \
     main.cpp \
     manualcontrol.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
     ramdata.cpp
 
 HEADERS += \
+    globalcoordinate.h \
     io.h \
     manualcontrol.h \
     mywindow.h \
@@ -26,6 +28,7 @@ HEADERS += \
     ramdata.h
 
 FORMS += \
+    globalcoordinate.ui \
     io.ui \
     manualcontrol.ui \
     mywindow.ui \

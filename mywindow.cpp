@@ -18,6 +18,7 @@ myWindow::myWindow(QWidget *parent)
     manualwindow = new manualControl(this);
     pointwindow = new pointInfo(this);
     ramwindow = new RAMData(this);
+    coordwindow = new globalCoordinate(this);
 
     mainindex = ui->tabWidget->indexOf(ui->Main);  // 获取main界面的索引
     // IO界面
@@ -61,6 +62,12 @@ myWindow::myWindow(QWidget *parent)
     ui->tabWidget->insertTab(ramindex, ramwindow, tr("RAM数据"));
     connect(ramwindow, &RAMData::sendCommandToServer, this, &myWindow::sendCommandToServer);
 
+    // 全局坐标系界面
+    coordindex = ui->tabWidget->indexOf((ui->tabCoord));
+    ui->tabWidget->removeTab(coordindex);
+    ui->tabWidget->insertTab(coordindex, coordwindow, tr("全局坐标系"));
+    connect(coordwindow, &globalCoordinate::sendCommendToServer, this, &myWindow::sendCommandToServer);
+
     // 初始化机器人运行状态按钮:开始/停止/暂停/复位
     ui->startARButton->setIcon(QIcon("D:/Qt/icon/start.png"));
     ui->startARButton->setIconSize(QSize(30,30));
@@ -92,7 +99,6 @@ void myWindow::on_connectButton_clicked()
 {
     QString ip = ui->iplineEdit->text().trimmed();  // 获取输入框中的IP
     int port = ui->portlineEdit->text().toInt();  // 获取输入框中的端口号
-
     if(ip.isEmpty() || port==0)
     {
         QMessageBox::warning(this, "提示", "ip与端口号不能为空");
@@ -226,8 +232,16 @@ void myWindow::readyRead_slot()
         }
         else if(key == "MB_COORD")
         {
-            int val = value.toInt();
-            this->handleCoord(val);
+            if(coordQueryForm == CoordQueryFrom::Main)
+            {
+                int val = value.toInt();
+                this->handleCoord(val);
+            }
+            else if(coordQueryForm == CoordQueryFrom::TabCoord)
+            {
+                int val = value.toInt();
+                coordwindow->handleCurrentIndex(val);
+            }
         }
         else if(key == "MB_MOVP")
         {
@@ -264,6 +278,16 @@ void myWindow::readyRead_slot()
             int val = value.toInt();
             pointwindow->handleWaitRealPos(val);
         }
+        else if(key == "MB_COORD_USER")
+        {
+            QStringList vallist = value.split(",");
+            coordwindow->handleCoordUser(vallist);
+        }
+        else if(key == "MB_COORD_TOOL")
+        {
+            QStringList vallist = value.split(",");
+            coordwindow->handleCoordTool(vallist);
+        }
     }
 }
 
@@ -291,6 +315,11 @@ void myWindow::changeSpeed()
     }
     QString cmd = QString("MB_RATE:%1").arg(rate);
     sendCommandToServer(cmd);
+}
+
+void myWindow::on_changeSpeedButton_clicked()
+{
+    changeSpeed();
 }
 
 void myWindow::updateSpeed(const QString &val)
@@ -382,6 +411,7 @@ void myWindow::updateJoint(const QStringList &vallist)
 void myWindow::myTimerUpdate()
 {
     if (tcpsocket && tcpsocket->isOpen()) {
+        coordQueryForm = CoordQueryFrom::Main;  // 从<主界面>定时器发出的查询坐标系指令
         QStringList commands = {"MB_RATE", "MB_ENABLE", "MB_SCRAM", "MB_CART", "MB_JOINT",
                                 "MB_AR_STATE", "MB_MODE", "MB_COORD"};
         for (int i = 0; i < commands.size(); i++) {
@@ -576,3 +606,4 @@ void myWindow::on_changeCoordButton_clicked()
     sendCommandToServer(cmd);
     ChangeCoord = true;  // 表示是修改坐标系
 }
+

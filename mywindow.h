@@ -8,10 +8,18 @@
 #include "manualcontrol.h"
 #include "pointinfo.h"
 #include "ramdata.h"
+#include "globalcoordinate.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class myWindow; }
 QT_END_NAMESPACE
+
+enum class CoordQueryFrom  // 标志位 记录当前的查询坐标指令MB_COORD来自哪里
+{
+    None,
+    Main,
+    TabCoord
+};
 
 class myWindow : public QWidget
 {
@@ -20,6 +28,8 @@ class myWindow : public QWidget
 public:
     explicit myWindow(QWidget *parent = nullptr);
     ~myWindow();
+
+    CoordQueryFrom coordQueryForm = CoordQueryFrom::None;
 
 private slots:
     void on_connectButton_clicked();      // 连接按钮槽函数
@@ -54,6 +64,8 @@ private slots:
 
     void on_changeCoordButton_clicked();  // 修改用户坐标系
 
+    void on_changeSpeedButton_clicked();
+
 private:
     Ui::myWindow *ui;
     QTcpSocket *tcpsocket;
@@ -62,11 +74,13 @@ private:
     manualControl *manualwindow = nullptr;
     pointInfo *pointwindow = nullptr;
     RAMData *ramwindow = nullptr;
+    globalCoordinate *coordwindow = nullptr;
 
     int mainindex = -1;
     int ioindex = -1;
     int pointindex = -1;
     int ramindex = -1;
+    int coordindex = -1;
 
     QString ARWorkStatus = "";  // 判断ARWork状态的变量
     bool ARPause = false;  // 标记是否暂停
