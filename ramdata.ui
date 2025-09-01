@@ -390,7 +390,7 @@
           </font>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;输入地址(0-127)：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;输入地址：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -426,6 +426,9 @@
            <family>微软雅黑</family>
            <pointsize>12</pointsize>
           </font>
+         </property>
+         <property name="placeholderText">
+          <string>0~127</string>
          </property>
         </widget>
        </item>
@@ -871,7 +874,7 @@
           </font>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;输入地址(0-127)：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;输入地址：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -907,6 +910,9 @@
            <family>微软雅黑</family>
            <pointsize>12</pointsize>
           </font>
+         </property>
+         <property name="placeholderText">
+          <string>0~127</string>
          </property>
         </widget>
        </item>

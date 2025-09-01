@@ -2,6 +2,7 @@
 #include "ui_manualcontrol.h"
 
 #include <QMessageBox>
+#include <qDebug>
 
 manualControl::manualControl(QWidget *parent)
     : QWidget(parent)
@@ -129,6 +130,7 @@ void manualControl::stopCartManual()  // 按钮松开时的处理函数
     manualtimer->stop();
     currentCarttDirection = CartDirection::None;
 
+
     manualCart();  // 松开按钮后调用该函数，会立即执行停止命令
 }
 
@@ -178,6 +180,7 @@ void manualControl::manualJoint()
 
     QString cmd = QString("MB_JOINTMOVE:%1").arg(joint);
     emit sendCommandToServer(cmd);
+    // qDebug() << "发送指令:" << cmd;
 }
 
 void manualControl::startJointManual(JointDirection jdir)

@@ -6101,6 +6101,9 @@
              <property name="flat">
               <bool>false</bool>
              </property>
+             <property name="qBtnSta" stdset="0">
+              <string/>
+             </property>
             </widget>
            </item>
            <item row="57" column="0">

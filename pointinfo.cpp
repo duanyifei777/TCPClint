@@ -463,7 +463,7 @@ void pointInfo::on_marchPButton_clicked()
                 QMap<QString, QString> paramHints;
                 paramHints["B"] = "Z轴上抬限位高度";
                 paramHints["C"] = "Z轴相对起始点上升高度";
-                paramHints["D"] = "Z轴相对起始点下降高度";
+                paramHints["D"] = "Z轴相对终点下降高度";
 
                 ParamInputDialog dialog(paramNames, paramHints, this);  // 第二个窗口获取剩余参数
                 if(dialog.exec() == QDialog::Accepted)
@@ -596,7 +596,7 @@ void pointInfo::on_movJButton_clicked()
             QMap<QString, QString> paramHints;
             for(int i=0; i<6; i++)
             {
-                paramHints[QString("Joint[%1]").arg(i)] = QString("J%1轴关节坐标").arg(i);
+                paramHints[QString("Joint[%1]").arg(i)] = QString("J%1轴关节坐标").arg(i+1);
             }
 
             ParamInputDialog dialog(paramNames, paramHints, this);
@@ -1021,6 +1021,7 @@ void pointInfo::stopMotionTimer()
 
 void pointInfo::handleWaitPos(int val)
 {
+    qDebug() << "waitPos:" << val;
     if(val == 0)  // 说明运动状态结束了，就关闭定时器
     {
         stopMotionTimer();

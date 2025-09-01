@@ -138,7 +138,7 @@
         </font>
        </property>
        <property name="placeholderText">
-        <string>请输入:0~999;区间用&quot;-&quot;连接</string>
+        <string>请输入:0~999</string>
        </property>
       </widget>
      </item>

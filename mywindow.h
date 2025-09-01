@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QQueue>
 #include "io.h"
 #include "manualcontrol.h"
 #include "pointinfo.h"
@@ -48,8 +49,11 @@ private slots:
     void updateCart(const QStringList &vallist);  // 更新机器人笛卡尔坐标
     void updateJoint(const QStringList &vallist); // 更新机器人关节坐标
 
-    void myTimerUpdate();                 // 定时器周期触发函数
     void changeTab(int index);
+    void myTimerUpdate();  // 定时更新主界面其余信息
+    void coordTimerUpdate();  // 定时更新机器人坐标
+    void processCoordQueue();  // 处理坐标指令队列
+    void processMainQueue();  // 处理其余信息指令队列
 
     void handleARWork(int val);  // 处理设置机器人运行状态返回的指令
     void on_startARButton_clicked();  // 启动AR程序
@@ -66,15 +70,26 @@ private slots:
 
     void on_changeSpeedButton_clicked();
 
+    void on_changeCoordButton_2_clicked();
+
 private:
     Ui::myWindow *ui;
     QTcpSocket *tcpsocket;
     IO *iowindow = nullptr;
-    QTimer *mainTimer;                    // 定时器用于轮询或定时刷新
+
+    QTimer *mainTimer;  // 定时器用于轮询或定时刷新其余指令
+    QTimer *coordTimer;  // 用来更新机器人当前坐标的定时器
+    QQueue<QString> coordQueue;  // 坐标指令队列
+    QQueue<QString> mainQueue;  // 其余指令队列
+    QTimer *coordScheduler;  // 调度器
+    QTimer *mainScheduler;  // 调度器
+
     manualControl *manualwindow = nullptr;
     pointInfo *pointwindow = nullptr;
     RAMData *ramwindow = nullptr;
     globalCoordinate *coordwindow = nullptr;
+
+    bool isAlarm = false;  // 是否报警
 
     int mainindex = -1;
     int ioindex = -1;
